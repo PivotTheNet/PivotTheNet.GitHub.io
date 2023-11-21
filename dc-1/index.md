@@ -7,6 +7,7 @@ Let's root DC-1!
 
 Details can be found at [https://www.five86.com/dc-1.html](https://www.five86.com/dc-1.html)
 
+<span style="color:cyan">
 <details closed>
 <summary> Open this to see the box's overview pulled from the above website.
 </summary>
@@ -25,6 +26,7 @@ Depending on your skill level, you may be able to skip finding most of these fla
 
 Beginners may encounter challenges that they have never come across previously, but a Google search should be all that is required to obtain the information required to complete this challenge.
 </details>
+</span>
 <br>
 
 > If you're ever needing to find the IP of a local box, `sudo netdiscover -r *ip/cidr*` will do the trick. `-r` specifies the range. If this tool doesn't work, you could have routing issues. `-i` can specify the interface you need to run against. Another nifty tool is `ip route get *ip*` as this will tell you what route a packet will take to the `ip` specified. Anyways.. to the box!
