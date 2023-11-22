@@ -43,7 +43,7 @@ Running `sudo netdiscover -i vboxnet0 -r 192.168.56.0/24` provides me the follow
 
 I then follow up by assigning a few variables and echoing them back to review for syntax errors.  
 
-![netdiscover followed by var assignment & echo](/images/DC-Series/DC-3/NetDisc-and-setvars.png "netdiscover followed by var assignment & echo")
+![netdiscover followed by var assignment & echo](/images/CTF/VulnHub/DC-Series/DC-3/NetDisc-and-setvars.png "netdiscover followed by var assignment & echo")
 
 ---
 ---
@@ -67,7 +67,7 @@ Let's see what ports and services may be running on the target(DC-3).
 - `--open` --> only shows ports that are "open". Safe against a purposely vulnerable box.
 > Using `-A` works too. It includes the two specified options above, plus traceroute. 
 
-![trimmed up nmap results](/images/DC-Series/DC-3/nmap-scan-results-highlighted.png "trimmed up nmap results")
+![trimmed up nmap results](/images/CTF/VulnHub/DC-Series/DC-3/nmap-scan-results-highlighted.png "trimmed up nmap results")
 
 Looks like a Joomla CMS provided by an apache server hosted on Ubuntu.  
 Let's make some notes and move onto manual inspection.
@@ -100,7 +100,7 @@ Browsing to 192.168.56.113 provides us the Joomla home page.
   - Robots.txt doesn't exist.
   - View Page Source --> Nothing worth noting
 
-![joomla home page](/images/DC-Series/DC-3/joomla-home-page.png "joomla home page")
+![joomla home page](/images/CTF/VulnHub/DC-Series/DC-3/joomla-home-page.png "joomla home page")
 
 
 Nothing obvious with the manual inspection, so let's move onto fuzzing directories and files...
@@ -117,7 +117,7 @@ Let's see if the Joomla CMS has any files that are hidden or forgotten...
 - `--hc 403,404` --> tells `wfuzz` not to display any 403 or 404 responses.
 - `$URLfile` --> is the exported variable with no appended backslash, meaning wfuzz will fuzz for files.
 
-![wfuzz - files](/images/DC-Series/DC-3/wfuzz-files-many.png "wfuzz - files")
+![wfuzz - files](/images/CTF/VulnHub/DC-Series/DC-3/wfuzz-files-many.png "wfuzz - files")
 
 Let's manually visit each recorded response, in our browser, to see what each presents!
 - `index.php` - that's the home page...
@@ -136,7 +136,7 @@ Time to enumerate the directories.
 Just like before but with the `$URLdir` variable and `directories.txt` wordlist. We'll also add the option `--hh 31`, as this will filter out some responses that have no value to us(blank pages,forbidden,etc).
 `wfuzz -c -z file,/usr/share/wordlists/SecLists/Discovery/Web-Content/raft-large-directories.txt --hc 403,404 --hh 31 $URLdir`
 
-![wfuzz - directories](/images/DC-Series/DC-3/wfuzz-dirs-admin-page.png "wfuzz - directories")
+![wfuzz - directories](/images/CTF/VulnHub/DC-Series/DC-3/wfuzz-dirs-admin-page.png "wfuzz - directories")
 
 Again, just as before. Let's visit the response...`/administrator/`  
 Looks like an admin login page but with no usernames, attempting to login would be a waste.
@@ -173,7 +173,7 @@ Now let's run `joomscan`
   - It also shows there's no Joomla core vulnerability but this isn't true. The next section will show otherwise.
 >Confirming a tool's findings is an important step, as you'll sometimes run into false results!
 
-![Joomla 3.7.0 and admin login page - confirmed](/images/DC-Series/DC-3/joomscan-version-confirmed.png "Joomla 3.7.0 and admin login page - confirmed")
+![Joomla 3.7.0 and admin login page - confirmed](/images/CTF/VulnHub/DC-Series/DC-3/joomscan-version-confirmed.png "Joomla 3.7.0 and admin login page - confirmed")
 
 ---
 ---
@@ -190,7 +190,7 @@ We're not at a dead-end but since we have a confirmed version of Joomla 3.7.0, l
 
 `searchsploit joomla 3.7` results in the following(see pic)  
 
-![searchsploit 3.7 results](/images/DC-Series/DC-3/joomla-3-7-searchsploit-results.png "searchsploit 3.7 results")
+![searchsploit 3.7 results](/images/CTF/VulnHub/DC-Series/DC-3/joomla-3-7-searchsploit-results.png "searchsploit 3.7 results")
 
 There's two helpful options we can use to interact with the searchsploit results:
 1. `-m` aka `--mirror` - this copies an exploit to the current working directory.
@@ -209,7 +209,7 @@ You can test for SQL injection by simply running the following in your browser
 
 If you get this response, then it's vulnerable to SQLi (SQL Injection)!
 
-![Confirming SQLi for Joomla 3.7.0](/images/DC-Series/DC-3/confirmed-SQLi-Joomla.png "Confirming SQLi for Joomla 3.7.0")
+![Confirming SQLi for Joomla 3.7.0](/images/CTF/VulnHub/DC-Series/DC-3/confirmed-SQLi-Joomla.png "Confirming SQLi for Joomla 3.7.0")
 
 ---
 ---
@@ -232,7 +232,7 @@ File `42033.txt` gives us this example to run, so let's try it out.
 
 > Just hit `enter` to run defaults if you're asked any questions during runtime.  
 
-![MySQL - databases](/images/DC-Series/DC-3/sqlmap-dbs.png "MySQL - databases")
+![MySQL - databases](/images/CTF/VulnHub/DC-Series/DC-3/sqlmap-dbs.png "MySQL - databases")
 
 > `mysql` confirmed MySQL version >=5.1. Add this to the notes!   
 
@@ -243,7 +243,7 @@ Let's now specify the database we want to enumerate using the options and value 
   - Remove `--dbs` and add `-D joomladb` - this specifies the "joomladb" database we want to query aka "USE DATABASE joomla;"
   - Add `--tables` --> this basically runs "SHOW tables;"
 
-![MySQL - joomladb tables](/images/DC-Series/DC-3/joomladb-tables-listed.png "MySQL - joomladb tables")
+![MySQL - joomladb tables](/images/CTF/VulnHub/DC-Series/DC-3/joomladb-tables-listed.png "MySQL - joomladb tables")
 
 It's a longer list, but we're seeing a `#__users` table. Let's go ahead and `--dump` it's data.
 
@@ -254,7 +254,7 @@ It's a longer list, but we're seeing a `#__users` table. Let's go ahead and `--d
     - When asked about which dictionary to use, default #1 is fine.
     - 1 thread is fine. Press enter to run the default speed.
 
-![MySQL Table Dump!](/images/DC-Series/DC-3/MySQL-table-column-dump.png "MySQL Table Dump!")
+![MySQL Table Dump!](/images/CTF/VulnHub/DC-Series/DC-3/MySQL-table-column-dump.png "MySQL Table Dump!")
 
 Nice! We end up with a dump showing the details of the username admin, including the password hash!
 
@@ -278,7 +278,7 @@ Now that we know the hashing algorithm and the hash is inside a file, let's run 
   - `*.txt` --> is the files containing the hashes
   - `/*/wordlist.txt` --> specifies the location of the wordlist
 
-![Username admin hash cracked!!](/images/DC-Series/DC-3/hashcat-cracked-hash.png "Username admin hash cracked!!")
+![Username admin hash cracked!!](/images/CTF/VulnHub/DC-Series/DC-3/hashcat-cracked-hash.png "Username admin hash cracked!!")
 
 We now have an email, username, and password! Let's update our notes! Plus MySQL versioning and potential username:freddy.
 
@@ -315,14 +315,14 @@ We now have an email, username, and password! Let's update our notes! Plus MySQL
 
 Head to `/administrator/` login form and use our newly cracked password --> admin:snoopy.
 
-![Logged in as admin - Joomla](/images/DC-Series/DC-3/joomla-admin-panel.png "Logged in as admin - Joomla")
+![Logged in as admin - Joomla](/images/CTF/VulnHub/DC-Series/DC-3/joomla-admin-panel.png "Logged in as admin - Joomla")
 
 **We're now logged into Joomla as admin!**  
 
 At this point, it's good to look around the admin panel to see what there is to notate. Versions? Other users? Anything!
 > A good place to start, with Joomla, is in the System > System Information panel
 
-![Joomla's configuration panel](/images/DC-Series/DC-3/joomla-system-info.png "Joomla's configuration panel")
+![Joomla's configuration panel](/images/CTF/VulnHub/DC-Series/DC-3/joomla-system-info.png "Joomla's configuration panel")
 
 > Although a back burner item, notating the kernel version is important as it may be the last easy way to gaining privesc.
 
@@ -383,7 +383,7 @@ Navigate to the Beez3 template by Extensions > Templates > Templates > Beez3 Det
 
 :warning: DO NOT SAVE & PREVIEW the template yet! Netcat needs configured  
 
-![PHP revshell configured and ready!](/images/DC-Series/DC-3/php-revshell-template.png "PHP revshell configured and ready!")
+![PHP revshell configured and ready!](/images/CTF/VulnHub/DC-Series/DC-3/php-revshell-template.png "PHP revshell configured and ready!")
 
 
 Now it's time to setup netcat, so it's listening on the port you previously specified in the php template. Open another terminal tab and run:
@@ -399,7 +399,7 @@ Jump back to Joomla and click "Save & Close" followed by clicking "Template Prev
 
 **We have remote shell!**
 
-![Successful revshell](/images/DC-Series/DC-3/rev-shell-established.png "Successful revshell")
+![Successful revshell](/images/CTF/VulnHub/DC-Series/DC-3/rev-shell-established.png "Successful revshell")
 
 ---
 ---
@@ -429,7 +429,7 @@ Now let's set PATH variables, output color, and an alias.
 
 Now CTRL+C won't disconnect us and we have nice terminal output. :smiley:
 
-![A stable python spawned bash shell with tty](/images/DC-Series/DC-3/stable-tty-shell.png "A stable python spawned bash shell with tty")
+![A stable python spawned bash shell with tty](/images/CTF/VulnHub/DC-Series/DC-3/stable-tty-shell.png "A stable python spawned bash shell with tty")
 
 ---
 
@@ -443,7 +443,7 @@ So, we'll either need to find user www-data's password or find another privesc p
 ### enum /etc/shadow & /etc/passwd
 Let's see if we have access to `cat /etc/shadow` or `cat /etc/passwd`. Denied access to shadow but we have access to passwd.
 
-![user dc3 found](/images/DC-Series/DC-3/users-dc3.png "user dc3 found")
+![user dc3 found](/images/CTF/VulnHub/DC-Series/DC-3/users-dc3.png "user dc3 found")
 
 > In linux, user created users start with an ID of 1000. e.g. 1000 and 1001 would indicate two users NOT including root. Root is always ID 0.  
 
@@ -462,7 +462,7 @@ To search the target for binaries which have the SUID bit set, we'll run the fol
 - `-type f` --> to only list files
 - `2>/dev/null` --> redirects any errors to a black hole in space :grin:
 
-![SUID set binaries](/images/DC-Series/DC-3/www-data-SUIDs.png "SUID set binaries")
+![SUID set binaries](/images/CTF/VulnHub/DC-Series/DC-3/www-data-SUIDs.png "SUID set binaries")
 
 
 The `at` binary is abusable for privesc BUT it requires the user to have SUDO privs to the file and not SUID, so this is a dead end since we lack SUDO privs.
@@ -476,7 +476,7 @@ Let's see what processes are running as 'root' by executing the following:
 `ps -U root -u root u`
 - this shows every process running as root in user format. Pulled from `ps` man page.  
 
-![cron running as root](/images/DC-Series/DC-3/cron-running-as-root.png "cron running as root")
+![cron running as root](/images/CTF/VulnHub/DC-Series/DC-3/cron-running-as-root.png "cron running as root")
 
 I looked for anything abusable running under a cronjob but there was nothing.
 
@@ -489,7 +489,7 @@ Let's see if Joomla's configuration file holds anything special...
 Looks like we found the **root** MySQL database password!
 - **root:squires**
 
-![MySQL creds found](/images/DC-Series/DC-3/MySQL-creds.png "MySQL creds found")
+![MySQL creds found](/images/CTF/VulnHub/DC-Series/DC-3/MySQL-creds.png "MySQL creds found")
 
 ---
 
@@ -510,7 +510,7 @@ At this point, let's gather all the kernel/OS info and add it to our notes, or c
 `uname -a`
 This results in the following:  
 
-![Kernel & OS Info](/images/DC-Series/DC-3/OS-Kernel-Info.png "Kernel & OS Info")
+![Kernel & OS Info](/images/CTF/VulnHub/DC-Series/DC-3/OS-Kernel-Info.png "Kernel & OS Info")
 
 
 > **Box Name** : DC-3 (DC Series)  
@@ -561,7 +561,7 @@ We're going `searchsploit` the OS and kernel versions for any exploit that may g
 Let's run `searchsploit ubuntu 16.04 4.4 priv esc`  
 - This will look for any exploits that include ubuntu + 16.04 + 4.4 + priv + esc and we get the following results!
 
-![searchsploit kernel exploit results](/images/DC-Series/DC-3/searchsploit-OS-Kernal-exploit-found.png "searchsploit's kernel exploit results")
+![searchsploit kernel exploit results](/images/CTF/VulnHub/DC-Series/DC-3/searchsploit-OS-Kernal-exploit-found.png "searchsploit's kernel exploit results")
 
 I'm going to choose the `linux/local/39772.txt` and the chances of it working increase when seeing a "x" in the kernel results `4.4.*x*`.  
 
@@ -582,7 +582,7 @@ Let's download the exploit to our attackbox. :grin:
 I use `vim` to look inside the zip file and it holds the *.tar file needed to exploit the target: `exploit.tar`. The `crasher.tar` is the PoC, and is NOT needed.  
 Good to know as we'll need to unzip this archive, once on the target, and compile the exploit to run.  
 
-![Contents of 39772.zip](/images/DC-Series/DC-3/39772-zips-exploitss.png "Contents of 39772.zip")
+![Contents of 39772.zip](/images/CTF/VulnHub/DC-Series/DC-3/39772-zips-exploitss.png "Contents of 39772.zip")
 
 Let's now move onto transferring the exploit and executing it!
 
@@ -606,9 +606,9 @@ Once in `/var/tmp`, we run the following to download the exploit from the attack
 
 Here's a successful transfer, of 39772.zip, from the attackbox to the target.  
 
-![Attackbox - file transfer successful 200](/images/DC-Series/DC-3/pyhton-m-http-server-complete.png "Attackbox - file transfer successful 200")
+![Attackbox - file transfer successful 200](/images/CTF/VulnHub/DC-Series/DC-3/pyhton-m-http-server-complete.png "Attackbox - file transfer successful 200")
 
-![Targetbox - file transfer successful](/images/DC-Series/DC-3/target-file-xfer-successful.png "Targetbox - file transfer successful")
+![Targetbox - file transfer successful](/images/CTF/VulnHub/DC-Series/DC-3/target-file-xfer-successful.png "Targetbox - file transfer successful")
 
 We can now `ll`, on the target's terminal, and see that we have the file in the current working directory.
 
@@ -628,7 +628,7 @@ Now that we have the kernel exploit on the target machine, we're set to extract,
 `./compile.sh` --> You may see some errors, and since they're non critical we'll ignore them.  
 `ll` again --> you should see a few new files. **suidhelper**, **doubleput**, and **hello**.  
 
-![exploit ready for execution!](/images/DC-Series/DC-3/exploit-compiled-and-ready.png "exploit ready for execution!")
+![exploit ready for execution!](/images/CTF/VulnHub/DC-Series/DC-3/exploit-compiled-and-ready.png "exploit ready for execution!")
 
 Now we have an exploit, called `doubleput`, that's ready to be executed!! Let's get to it already!  
 
@@ -639,7 +639,7 @@ Now we have an exploit, called `doubleput`, that's ready to be executed!! Let's 
 
 ## ROOTED!!
 
-![ROOT GAINED!!!](/images/DC-Series/DC-3/Root-Gained.png "ROOT GAINED!!!")
+![ROOT GAINED!!!](/images/CTF/VulnHub/DC-Series/DC-3/Root-Gained.png "ROOT GAINED!!!")
 
 ---
 

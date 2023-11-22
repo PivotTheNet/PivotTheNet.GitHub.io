@@ -63,7 +63,7 @@ Let's start with a simple nmap scan to see what we're playing with:
       4. Traceroute
   - `--open` = runs `-A` only against ports that are open. Idea is to speed up slow scans. Running a local box won't cause much issues but when you're running a slower scan or the latency is high, this option can help.
 
-![DC-1 nmap scan](/images/DC-Series/DC-1/DC-1_nmap-scan.png "DC-1 nmap scan") 
+![DC-1 nmap scan](/images/CTF/VulnHub/DC-Series/DC-1/DC-1_nmap-scan.png "DC-1 nmap scan") 
 
 - Let's start with port 80 as it's most likely the weakest entry point due to the potential services listed in robots.txt.
 - SSH, on port 22, isn't much use as we currently lack keys, usernames, and passwords. We could brute force but it'll take a while and it's not guaranteed to work.
@@ -82,19 +82,19 @@ Let's start with a simple nmap scan to see what we're playing with:
 
 - Open up a browser and enter the box's IP address to visit the IP's http service. Since it's running on port 80, there's no need to specify the port eg. 192.168.56.110 **:80**
 
-![DC-1 http service](/images/DC-Series/DC-1/Drupal-http.png "DC-1 http service")
+![DC-1 http service](/images/CTF/VulnHub/DC-Series/DC-1/Drupal-http.png "DC-1 http service")
 
 - Manually inspect the page source. Findings are:
   - Drupal 7 = nmap already told us this
-  ![Page Source of Drupal](/images/DC-Series/DC-1/page-source-drupal-7.png "Page Source of Drupal")
+  ![Page Source of Drupal](/images/CTF/VulnHub/DC-Series/DC-1/page-source-drupal-7.png "Page Source of Drupal")
 
 - Let's see if we can enumerate the responses regarding the login fields at the /user/ directory
   - No response allows us to differentiate between username nor passwords.   
   If we could get a response saying "This email does not exist", then that would allow us to brute force enumerate emails.
-  ![Login Enum Fail](/images/DC-Series/DC-1/login-enum-fail.png "Login Enum Fail")
+  ![Login Enum Fail](/images/CTF/VulnHub/DC-Series/DC-1/login-enum-fail.png "Login Enum Fail")
 
   - Same goes for recovering an account.
-  ![Forgot Enum Fail](/images/DC-Series/DC-1/forgot-enum-fail.png "Forgot Enum Fail")
+  ![Forgot Enum Fail](/images/CTF/VulnHub/DC-Series/DC-1/forgot-enum-fail.png "Forgot Enum Fail")
 
 - Default credentials?
   - Seems like that's a negative. Drupal forces a password change when logging in for the first time. Answer found via google :smiley:
@@ -133,7 +133,7 @@ Let's start with a simple nmap scan to see what we're playing with:
 I was hoping to find something more than just a general version 7 of Drupal... e.g., 7.26, but that's okay. Let's go ahead and run `searchsploit` against `Drupal` and see what we get back.
 
 - `searchsploit Drupal`
-![DC-1 Drupal 7 searchsploit](/images/DC-Series/DC-1/searchsploit-drupal.png "DC-1 Drupal 7 searchsploit")
+![DC-1 Drupal 7 searchsploit](/images/CTF/VulnHub/DC-Series/DC-1/searchsploit-drupal.png "DC-1 Drupal 7 searchsploit")
 - Well, good news is there isn't many version 7 exploits!
 - We're looking for RCE(remote code execution) as it will provide us the quickest/easiest way into the system. We also want something that doesn't require authentication, although we can make a user at /user/register. There's always the chance a non-privileged user would have enough privs to execute such an exploit.
 
@@ -145,7 +145,7 @@ I was hoping to find something more than just a general version 7 of Drupal... e
   - `cat 34992.py` <-- This will output the contents of the .py script, so we can dig into it and alter code if needed. Many scripts don't hold your hand, so knowing how to read code is very helpful.
   - You'll see this line which tells us the command options needed, so we can successfully execute the script against the target.
 
-![DC-1 Drupal 7 exploit](/images/DC-Series/DC-1/python-exploit-admin-sqli.png "DC-1 Drupal 7 exploit")
+![DC-1 Drupal 7 exploit](/images/CTF/VulnHub/DC-Series/DC-1/python-exploit-admin-sqli.png "DC-1 Drupal 7 exploit")
 
 usage: `%prog **-t http[s]://TARGET_URL -u USER -p PASS**\n`
 
@@ -161,11 +161,11 @@ Well... let's get to it.
 **IF YOU GET A "SyntaxError: Missing parentheses in call to 'print'. Did you mean print(...)?"...  
 you're not running the script under python2... which is required.**
 
-![DC-1 Drupal 7 admin created](/images/DC-Series/DC-1/drupal-admin-created.png "DC-1 Drupal 7 admin created")
+![DC-1 Drupal 7 admin created](/images/CTF/VulnHub/DC-Series/DC-1/drupal-admin-created.png "DC-1 Drupal 7 admin created")
 
 - Now let's test the login page... with owned:owned.
   ***ADMIN LOGGED IN***
-  ![DC-1 Drupal 7 admin logged in](/images/DC-Series/DC-1/logged-in-drupal.png "DC-1 Drupal 7 admin logged in")
+  ![DC-1 Drupal 7 admin logged in](/images/CTF/VulnHub/DC-Series/DC-1/logged-in-drupal.png "DC-1 Drupal 7 admin logged in")
 
 - Now that we're in a CMS, we should look around and enumerate what we can...
 
@@ -181,14 +181,14 @@ It's important to gather as much information as you can as it might come into ha
 - Let's look in the module tab and see if there's anything php related...
   - I found and enabled the follow module... "PHP filter". It may just allow us to upload malicious PHP code.
 
-![DC-1 Drupal 7 Enabled PHP Filter](/images/DC-Series/DC-1/php-module-enable-it.png "DC-1 Drupal 7 Enabled PHP Filter")
+![DC-1 Drupal 7 Enabled PHP Filter](/images/CTF/VulnHub/DC-Series/DC-1/php-module-enable-it.png "DC-1 Drupal 7 Enabled PHP Filter")
 
   - Not that it's enabled, we should see if we can give it administrator rights.. Click the "Permissions" and then check the "administrator" user box for "Use the PHP code text format"
 
-![DC-1 Drupal 7 PHP code permissions](/images/DC-Series/DC-1/php-permissions.png "DC-1 Drupal 7 PHP code permissions")
+![DC-1 Drupal 7 PHP code permissions](/images/CTF/VulnHub/DC-Series/DC-1/php-permissions.png "DC-1 Drupal 7 PHP code permissions")
 
 
-![DC-1 Drupal 7 admin perms for php code](/images/DC-Series/DC-1/enable-php-code-admin.png "DC-1 Drupal 7 admin perms for php code")
+![DC-1 Drupal 7 admin perms for php code](/images/CTF/VulnHub/DC-Series/DC-1/enable-php-code-admin.png "DC-1 Drupal 7 admin perms for php code")
 
 - I'm hoping by checking the admin box, this will allow any code inputted to be executed with admin privs.
 
@@ -202,10 +202,10 @@ It's important to gather as much information as you can as it might come into ha
     - Change "Text Format" to the PHP code module, which is what we enabled with admin privs
       - Then press preview... let's see if we can grab the current user...
         - We got a response! "www-data". Injection is working!
-        ![DC-1 Drupal 7 PHP code injection!](/images/DC-Series/DC-1/www-data-injection.png "DC-1 Drupal 7 PHP code injection!")
+        ![DC-1 Drupal 7 PHP code injection!](/images/CTF/VulnHub/DC-Series/DC-1/www-data-injection.png "DC-1 Drupal 7 PHP code injection!")
       
       - Let's change the command from `whoami` to `cat /etc/passwd`. Looks like another two users to notate. www-data and flag4
-      ![C-1 Drupal 7 PHP code injection - passwd file](/images/DC-Series/DC-1/php-injection-passwd.png "C-1 Drupal 7 PHP code injection - passwd file")
+      ![C-1 Drupal 7 PHP code injection - passwd file](/images/CTF/VulnHub/DC-Series/DC-1/php-injection-passwd.png "C-1 Drupal 7 PHP code injection - passwd file")
       - Trying `sudo cat /etc/shadow` fails, so we don't have sudo or root privs. *Sudo may not even be installed*
 
 ### PHP revshell  
@@ -223,7 +223,7 @@ It's important to gather as much information as you can as it might come into ha
     - The Drupal page will likely hang, let it be. Minimize it and forget about it. If you refresh or close it, you'll lose your revshell.
 - We now have a revshell into the box but lacks tty! We'll fix this in the next section.
   - Let's do a quick test by typing `whoami` into our new revshell. You should see "www-data".
-  ![DC-1 Drupal 7 - revshell w/o tty](/images/DC-Series/DC-1/no-tty.png "DC-1 Drupal 7 - revshell w/o tty")
+  ![DC-1 Drupal 7 - revshell w/o tty](/images/CTF/VulnHub/DC-Series/DC-1/no-tty.png "DC-1 Drupal 7 - revshell w/o tty")
 
 ## Privilege Escalation
 
@@ -262,9 +262,9 @@ At this point, we now have a revshell into DC-1 whom does not have root privs. W
   ### SUID Search
   Let's look for SUID binaries!
     - `find / -perm -u=s -type f 2>/dev/null`
-![DC-1 Drupal 7 - SUID search](/images/DC-Series/DC-1/SUID-binaries.png "DC-1 Drupal 7 - SUID search")
+![DC-1 Drupal 7 - SUID search](/images/CTF/VulnHub/DC-Series/DC-1/SUID-binaries.png "DC-1 Drupal 7 - SUID search")
     - Here's the `find` binary. Look at the perms. You're looking for an `s` in place of the executable bit set for user group.
-![DC-1 Drupal 7 - SUID example](/images/DC-Series/DC-1/find-SUID-bit.png "DC-1 Drupal 7 - SUID example")
+![DC-1 Drupal 7 - SUID example](/images/CTF/VulnHub/DC-Series/DC-1/find-SUID-bit.png "DC-1 Drupal 7 - SUID example")
 
   ### Searching GTFObins    
      Let's look on [GTFObins](https://gtfobins.github.io) to see if any of these binaries have a SUID exploit that obtains and holds elevated privs.  
@@ -287,7 +287,7 @@ At this point, we now have a revshell into DC-1 whom does not have root privs. W
     - Copy/paste `/usr/bin/find -exec /bin/sh \; -quit` in the tty remote shell you have running in your terminal and let's see if we can abuse the SUID bit to escalate privs to root...
     - $$$ - We have root!
 ## ROOTED!
-![DC-1 Drupal 7 - ROOTED!!!](/images/DC-Series/DC-1/box-pwned.png "DC-1 Drupal 7 - ROOTED!!!")
+![DC-1 Drupal 7 - ROOTED!!!](/images/CTF/VulnHub/DC-Series/DC-1/box-pwned.png "DC-1 Drupal 7 - ROOTED!!!")
 
 
 

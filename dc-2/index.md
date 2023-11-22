@@ -49,7 +49,7 @@ Depending on my attack system's interface/routing configuration, I may have to r
 
 > PS You'll need to `CTRL+C` to exit `netdiscover`.  
 
-![netdiscover tool - *.100 is the virtualbox DHCP server while *.111 is DC-2](/images/DC-Series/DC-2/netdiscover.png "netdiscover tool - *.100 is the virtualbox DHCP server while *.111 is DC-2")
+![netdiscover tool - *.100 is the virtualbox DHCP server while *.111 is DC-2](/images/CTF/VulnHub/DC-Series/DC-2/netdiscover.png "netdiscover tool - *.100 is the virtualbox DHCP server while *.111 is DC-2")
 
 Now that we have DC-2's IP address, let's move onto setting up environment variables through the attack box's terminal.
 
@@ -67,7 +67,7 @@ To speed up a few future commands, let's export a few environment variables to i
     - e.g. `export URLfile="http://192.168.56.111/FUZZ"`
   4. Let's make sure we've exported the variables correctly by running `echo $IP; echo $URLdir; echo $URLfile`
 
-![echo our $IP, $URLdir, $URLfile vars](/images/DC-Series//DC-2/echo-exports.png "echo our $IP, $URLdir, $URLfile vars") 
+![echo our $IP, $URLdir, $URLfile vars](/images/CTF/VulnHub/DC-Series//DC-2/echo-exports.png "echo our $IP, $URLdir, $URLfile vars") 
 
 > PS If you ever export variables and then create a second shell, the ***second shell will only contain the previously exported variables if it's a child shell of the first.***  
 
@@ -92,7 +92,7 @@ Anyways, let's get to it by starting with a nmap scan against DC-2's IP.
       - `-sV` --> enables version detection. `-A` includes this.
       - `--open` --> only shows ports that are "open". Safe against a purposely vulnerable box but not suggested for a real pentest as it may hide a reportable finding.
 
-![nmap results - Linux box w/ http on 80, ssh on 7744](/images/DC-Series//DC-2/nmap-results.png "nmap results - Linux box w/ http on 80, ssh on 7744")
+![nmap results - Linux box w/ http on 80, ssh on 7744](/images/CTF/VulnHub/DC-Series//DC-2/nmap-results.png "nmap results - Linux box w/ http on 80, ssh on 7744")
  
 ---
 
@@ -123,19 +123,19 @@ In order to tell our attack box that we want `$IP` to resolve to DC-2, we simply
 4. Now confirm the changes by running `cat /etc/hosts`
 End result..
 
-![added dc-2 into /etc/hosts](/images/DC-Series/DC-2/etc-host.png "added dc-2 into /etc/hosts")
+![added dc-2 into /etc/hosts](/images/CTF/VulnHub/DC-Series/DC-2/etc-host.png "added dc-2 into /etc/hosts")
 
 ---
 
 ### Rerun nmap after /etc/hosts update
 Look how our redirect is working and nmap is able to grab the proper banners!
-![nmap results after /etc/hosts update - proper banners](/images/DC-Series/DC-2/second-nmap.png "nmap results after /etc/hosts update - proper banners")
+![nmap results after /etc/hosts update - proper banners](/images/CTF/VulnHub/DC-Series/DC-2/second-nmap.png "nmap results after /etc/hosts update - proper banners")
 
 ---
 
 ### Reinspecting http(80)
 Let's visit http://dc-2 in our browser.. Access to the webapp, finally! Looks like WordPress.
-![Wordpress CMS found](/images/DC-Series/DC-2/manual-inspection-http.png "Wordpress CMS found")
+![Wordpress CMS found](/images/CTF/VulnHub/DC-Series/DC-2/manual-inspection-http.png "Wordpress CMS found")
 
 > CMS stands for Content Management System. It's an app that allows multiple contributors to create, manage, and modify content on a website. Wordpress(WP) is a common CMS in the wild.  
 
@@ -187,7 +187,7 @@ If you lack the SecList wordlists(already included in Kali's repo), you can find
 SecLists works great for CTFs but for real world pentesting, you'll may be using custom or something found in my resources posts.
 {{< /admonition >}}
 
-![wfuzz results - files](/images/DC-Series/DC-2/wfuzz-files.png "wfuzz results - files")
+![wfuzz results - files](/images/CTF/VulnHub/DC-Series/DC-2/wfuzz-files.png "wfuzz results - files")
 
 ---
 
@@ -208,7 +208,7 @@ Let's now fuzz against directories. We'll simply change the exported variable an
   - `$URLdir` --> exported variable that includes appended backslash, so wfuzz searches for directories.
 - Let's manually visit each recorded response, in our browser, to see what it presents! ***ignore the last three responses***
 
-![wfuzz results - directories](/images/DC-Series/DC-2/wfuzz-dir.png "wfuzz results - directories")
+![wfuzz results - directories](/images/CTF/VulnHub/DC-Series/DC-2/wfuzz-dir.png "wfuzz results - directories")
 
 ---
 
@@ -226,7 +226,7 @@ Regarding the potential WebTech findings in the /readme.html file, let's confirm
 - Install it through the browser's extension manager
 - Visit http://dc-2 with our browser and see which tech stack it's using.
 
-![Wappalyzer Results](/images/DC-Series/DC-2/wappalyzer.png "Wappalyzer Results")
+![Wappalyzer Results](/images/CTF/VulnHub/DC-Series/DC-2/wappalyzer.png "Wappalyzer Results")
 
 - We're able to confirm:
   - Wordpress 4.7.10 --> Confirmed with nmap after /etc/hosts update
@@ -244,7 +244,7 @@ We have some additional info to add into our notes. Let's also create a to-do se
 
 > PS If you attempt admin:password, at the /wp-login page, you'll see that username enumeration is possible! If the XML-RPC API wasn't enabled, we could possibly attack this login page.  
 
-![/wp-login.php user enum possible](/images/DC-Series/DC-2/username-enumeration.png "/wp-login.php user enum possible")
+![/wp-login.php user enum possible](/images/CTF/VulnHub/DC-Series/DC-2/username-enumeration.png "/wp-login.php user enum possible")
 
 ***TO-DO LIST***  
 Things to check:  
@@ -294,7 +294,7 @@ Our goal is to use `wpscan` to enumerate usernames, `cewl` to create a custom pa
 - To enumerate users with wpscan, simple run `wpscan --url http://dc-2`. Looks like we have three WP users, including the admin user we've already confirmed via /wp-login.php. Let's add these users to our notes.
   - **admin; jerry; tom**
 
-![wpscan - user enumeration](/images/DC-Series/DC-2/wp-username-enum.png "wpscan - user enumeration")
+![wpscan - user enumeration](/images/CTF/VulnHub/DC-Series/DC-2/wp-username-enum.png "wpscan - user enumeration")
 
 ---
 
@@ -312,7 +312,7 @@ Now let's run the `cewl` tool!
   - `-w $PWD/dc-2-cewl.txt` --> tells cewl to export file name "dc-2-cewl.txt" into the current working directory(var of `$PWD`)
   - `cat dc-2-cewl.txt` and you'll see these results.
 
-![cewl results](/images/DC-Series/DC-2/cewl-results.png "cewl results")
+![cewl results](/images/CTF/VulnHub/DC-Series/DC-2/cewl-results.png "cewl results")
 
 Let's also create a list for usernames called dc-2-users.txt, so we can use it along side the password list, dc-2-cewl.txt, we just created.  
 `echo -e "admin\njerry\ntom" > dc-2-users.txt`
@@ -383,7 +383,7 @@ Let's get to it and run the attack against XML-RPC
 - `-U` --> location of the username list to be used
 - `-P` --> location of the password list to be used
 
-![wpscan - verified two valid combinations](/images/DC-Series/DC-2/wpscan-brute-force-results.png "wpscan - verified two valid combinations")
+![wpscan - verified two valid combinations](/images/CTF/VulnHub/DC-Series/DC-2/wpscan-brute-force-results.png "wpscan - verified two valid combinations")
 
 We have two valid credentials for WP;
   - jerry:adipiscing
@@ -410,7 +410,7 @@ Try again but with username "tom":
 
 **We're in!!!**  
 
-![tom@dc-2 -p 7744 successful!](/images/DC-Series/DC-2/tom-ssh-login-successful.png "tom@dc-2 -p 7744 successful!")
+![tom@dc-2 -p 7744 successful!](/images/CTF/VulnHub/DC-Series/DC-2/tom-ssh-login-successful.png "tom@dc-2 -p 7744 successful!")
 
 ---
 
@@ -420,7 +420,7 @@ By running `ls $PATH`, we'll see that we are limited to four binaries:
 less, ls, scp, **vi**  
 If you run any other command, you'll see the `-rbash` reference meaning "restricted bash".
 
-![rbash - restricted bash](/images/DC-Series/DC-2/ls-path.png "rbash - restricted bash")
+![rbash - restricted bash](/images/CTF/VulnHub/DC-Series/DC-2/ls-path.png "rbash - restricted bash")
 
 So first thing is first, we need to escape this restricted shell that user "tom" is restricted to.
 We can use `vi` to escape the restricted shell.  
@@ -463,7 +463,7 @@ Let's not forget that we may have access to the WP CMS webroot! Maybe we can ste
 After digging around in the `html` folder, I found that the `wp-config.php` contains MySQL creds!  
 ***wpadmin:4uTiLL***
 
-![wpadmin:4uTiLL creds in wp-config.php](/images/DC-Series/DC-2/MySQL-creds-wp-config.png "wpadmin:4uTiLL creds in wp-config.php")
+![wpadmin:4uTiLL creds in wp-config.php](/images/CTF/VulnHub/DC-Series/DC-2/MySQL-creds-wp-config.png "wpadmin:4uTiLL creds in wp-config.php")
 
 > Future me reporting in...  
 > To root this box, we're not needing to gather this SQL info nor do we need to crack hashes. We could skip this section and move onto [Abusing jerry's sudo privs with git](#abusing-jerrys-sudo-privs-with-git) but what's the fun in that!
@@ -508,7 +508,7 @@ We're able to crack the two previously found passwords but not the admin passwor
 ***$P$BxtBVzdeXeWoNQFW7unO11Qsp0lyTO.:parturient***
 ***$P$BRCcbpudGlBukTwA7kJsb.rafAL4il.:adipiscing***  
 
-![two hashes cracked, admin not cracked](/images/DC-Series/DC-2/two-hashes-cracked.png "two hashes cracked, admin not cracked")
+![two hashes cracked, admin not cracked](/images/CTF/VulnHub/DC-Series/DC-2/two-hashes-cracked.png "two hashes cracked, admin not cracked")
 
 > Since we have the hashes and know the algorithm, we could crack the admin password at a later time but I'll pass. We've stolen the sensitive data from the MySQL database and ran through some cewl / hashcat examples. The concepts are what matter here. :smiley:
 
@@ -521,7 +521,7 @@ Since it seems the box wants us to go for jerry now(tom & jerry cartoon...), let
 
 **We're in as jerry!**
 - `sudo -l` --> looks like jerry has root privs to the binary `git`  
-![jerry - sudo -l shows git as root!](/images/DC-Series/DC-2/jerry-sudo-l.png "jerry - sudo -l shows git as root!")  
+![jerry - sudo -l shows git as root!](/images/CTF/VulnHub/DC-Series/DC-2/jerry-sudo-l.png "jerry - sudo -l shows git as root!")  
 
 What do you know... `git` can be abused(confirmed via [GTFObins](https://gtfobins.github.io/gtfobins/git/#sudo)), if the user has sudo perms, to gain privesc!
 Let's gain root!
@@ -533,7 +533,7 @@ Let's gain root!
 ---
 
 ## ROOTED!
-![ROOTED!](/images/DC-Series//DC-2/DC-2-ROOTED.png "ROOTED!")
+![ROOTED!](/images/CTF/VulnHub/DC-Series//DC-2/DC-2-ROOTED.png "ROOTED!")
 
 
 ---
