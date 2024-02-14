@@ -202,7 +202,7 @@ I'll be using the `-m` option to copy the file to the current working directory.
 After looking at both exploits, the `44227.php` file concatenates the joomla database tables for usernames, emails, dbusers, dbnames, dbversion while the `42033.txt` file just shows a few SQLi examples. One example is through `sqlmap`!  
 > I want to get more experience using `sqlmap`, so this will be the path I take.  
 
-The vulnerability, in Joomla, looks to relate to the com_fields component being accessible by the public but is also used for internal administrative use. We'll be abusing this...
+The vulnerability, in Joomla, looks to relate to the exploitable com_fields component being accessible, which allows for SQLi(njection). We'll be abusing this...
 
 You can test for SQL injection by simply running the following in your browser  
 - `http://*DC-3-IP*/index.php?option=com_fields&view=fields&layout=modal&list[fullordering]=%27`  
