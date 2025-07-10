@@ -5,29 +5,29 @@ Hello world!
 ``` bash
 whoami
 ```
-I’m a born computer nerd who’s trying to figure out how everything works. My path to cyber is fun and frustrating at the same time, so here’s a quick story…
+Hello world!
 
-One day, I decided I wanted more out of my IT career and asked a cyber buddy where I should begin. He suggested that I apply myself in a home-built lab and obtain my Security+ certification, so I did just that. I started by purchasing a Security+ course on a major online learning platform and began studying.
+``` bash
+whoami
+```
+I’ve always been a computer nerd, endlessly curious about how everything works under the hood. My journey into cybersecurity has been equal parts exciting and exasperating—so here’s a quick story about how it all began.
 
-As I watched the Security+ course, I glanced at the page source to find the current video’s MP4 file exposed. I then force-browsed my way to the Security+ course’s root video directory, giving me access to all the Security+ course’s MP4 files… Big deal, right? I had paid for access. Well, after confirming this learning platform was part of a bug bounty program and that this discovery was in-scope, I wandered my way to a random unpaid-for course and found the directory structure by force-browsing from the course’s sample video URL. This ultimately led to the discovery of all the MP4 videos of the unpaid-for course! Did my intuition lead me to my first bug!? With the lack of experience I had, I was having a hard time believing the situation, so I confirmed the issue by looking over a few other courses, verifying the problem over and over.
+One day, I realized I wanted more from my IT career. I reached out to a friend in cybersecurity for advice, and he pointed me toward building a home lab and earning my Security+ certification. Motivated, I jumped in: I bought a Security+ course from a popular online platform and started studying.
 
-Despite my lack of experience with bug reporting, the report I submitted was effective. After a few days passed, I revisited the learning platform and verified that the issue had been fixed, while later receiving a reply on the bug bounty platform stating that no issues were found.
+As I watched the course, my curiosity got the better of me. I peeked at the page source using my browser’s developer tools and noticed the current video’s MP4 file was exposed. Intrigued, I started force-browsing and soon found the root directory containing all the Security+ course videos. No big deal—I had paid for the course, after all. But then, I wondered: What about courses I hadn’t paid for?
 
-Even though I was upset for not getting the recognition, I came out on top by learning two important things that day:
+After confirming the platform was part of a bug bounty program and that this kind of discovery was in-scope, I tried the same trick on another course I hadn’t purchased. Sure enough, by tweaking the sample video URL, I uncovered the directory structure and gained access to all the videos for that course, too! The rush of realizing I’d found a real bug was incredible. I tested a few more courses and confirmed the issue was widespread.
 
-1. I found my passion in cybersecurity, stemming from the idea of helping others protect their data.
-2. Making clear, concise, and detailed reports is very important!
+Despite my inexperience with bug reporting, I submitted a detailed report. A few days later, I checked back and saw the issue had been fixed. However, the bug bounty platform replied that "no issues were found." I was frustrated not to get recognition, but I walked away with valuable experience and a boosted drive to pursue a career in cybersecurity.
 
-&emsp;
+Today, I’m a security analyst looking to advance into offensive security.
 
 Anyways, why this blog?
- 1. Provide a resource for others. :smiley:  
- 2. Showcase my knowledge to employers. :wink:    
 
-&emsp;
+    Provide a resource for others. 😃
+    Showcase my knowledge to employers. 😉
 
-Now, go dig around!
-
+Anyways, go poke around in the blog and see what you can find!
 
 ---
 
