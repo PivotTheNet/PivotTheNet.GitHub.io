@@ -24,8 +24,8 @@ Today, I’m a security analyst looking to advance into offensive security.
 
 Anyways, why this blog?
 
-    Provide a resource for others. 😃
-    Showcase my knowledge to employers. 😉
+- Provide a resource for others. 😃
+- Showcase my knowledge to employers. 😉
 
 Anyways, go poke around in the blog and see what you can find!
 
